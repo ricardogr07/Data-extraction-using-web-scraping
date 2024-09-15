@@ -22,8 +22,7 @@ class OpenAIHandler:
         by loading the API key from environment variables.
         
         """
-        if logger is None:
-            self.logger = Logger("openai.log")
+        self.logger = logger if logger is not None else Logger("openai.log")
         self.logger.log.info("Initializing OpenAI Handler")
         self._configure_openai()
 
