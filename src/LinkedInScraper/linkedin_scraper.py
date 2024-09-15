@@ -16,7 +16,7 @@ class LinkedInJobScraper:
         self.job_scraper = JobScraper(config=self.config, logger=self.logger)
         self.job_data_cleaner = JobDataCleaner(self.logger)
         self.job_title_classifier = JobTitleClassifier(self.logger)
-        openai_handler = OpenAIHandler()
+        openai_handler = OpenAIHandler(self.logger)
         self.description_processor = JobDescriptionProcessor(openai_handler, self.logger)
 
     def run(self) -> pd.DataFrame:
