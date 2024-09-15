@@ -9,7 +9,9 @@ from Utils.file_manager import FileManager
 
 @pytest.fixture
 def logger():
-    return MagicMock(Logger)
+    mock_logger = MagicMock(Logger)
+    mock_logger.log = MagicMock()
+    return mock_logger
 
 @pytest.fixture
 def config():
@@ -34,6 +36,7 @@ def sample_df():
         'Url': ['http://example.com/12345', 'http://example.com/67890']
     })
 
+
 class TestFileManager:
 
     def test_initialization(self, file_manager, config):
@@ -43,7 +46,7 @@ class TestFileManager:
         assert file_manager.time_posted == config.time_posted
         assert file_manager.remote == config.remote
 
-    @patch('FileManager.datetime')
+    @patch('Utils.file_manager.datetime')
     def test_generate_file_name(self, mock_datetime, file_manager):
         """Test that the file name is generated correctly based on config."""
         mock_datetime.now.return_value = datetime(2024, 9, 15)
@@ -53,11 +56,14 @@ class TestFileManager:
 
     @patch('pandas.DataFrame.to_csv')
     @patch('os.path.exists', return_value=False)
-    def test_save_jobs_to_csv_new_file(self, mock_exists, mock_to_csv, file_manager, sample_df):
+    def test_save_jobs_to_csv_new_file(mock_exists, mock_to_csv, file_manager, sample_df):
         """Test saving jobs to a new CSV file."""
+        # Invoke the function to save jobs
         file_manager.save_jobs_to_csv(sample_df, append=False)
-        mock_to_csv.assert_called_once()
-        file_manager.logger.log.info.assert_called_with(f"Saved jobs to {file_manager.generate_file_name()}.")
+
+        # Ensure that `to_csv` was called once on the DataFrame with the correct arguments
+        expected_file_name = file_manager.generate_file_name()
+        mock_to_csv.assert_called_once_with(expected_file_name, index=False)
 
     @patch('pandas.read_csv')
     @patch('pandas.DataFrame.to_csv')

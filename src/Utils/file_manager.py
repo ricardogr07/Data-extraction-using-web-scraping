@@ -27,7 +27,8 @@ class FileManager:
         """Generate a file name based on the position, location, and date."""
         date = datetime.now().strftime('%Y-%m-%d')
         position_filename = self.position.replace(" ", "_")
-        file_name = f'LinkedIn_Jobs_{position_filename}_{self.location}'
+        location_filename = self.location.replace(" ", "_")
+        file_name = f'LinkedIn_Jobs_{position_filename}_{location_filename}'
 
         if self.time_posted != 'ALL':
             file_name += f'_LAST_{self.time_posted}'
