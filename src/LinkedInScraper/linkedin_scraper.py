@@ -39,8 +39,10 @@ class LinkedInJobScraper:
             
             jobs_with_details = self.fetch_job_details(classified_jobs)
 
+            cleaned_jobs_with_details = self.clean_job_details(jobs_with_details)
+
             if self.config.openai_enabled:      
-                enriched_jobs = self.enrich_jobs_with_descriptions(jobs_with_details)
+                enriched_jobs = self.enrich_jobs_with_descriptions(cleaned_jobs_with_details)
                 final_jobs = self.final_processing(enriched_jobs)
                 return final_jobs
             else:
@@ -93,10 +95,18 @@ class LinkedInJobScraper:
             self.logger.log.exception(f"Failed to fetch job details: {e}")
             return pd.DataFrame()
 
-    def enrich_jobs_with_descriptions(self, jobs_with_details: pd.DataFrame) -> pd.DataFrame:
+    def clean_job_details(self,jobs_with_details:pd.DataFrame ) ->pd.DataFrame:
+        try:
+            cleaned_jobs_with_details = self.job_data_cleaner.clean_extracted_job_data(jobs_with_details)
+            return cleaned_jobs_with_details
+        except Exception as e:
+            self.logger.log.exception(f"Failed to clean extracted job data: {e}")
+            return pd.DataFrame()
+
+    def enrich_jobs_with_descriptions(self, cleaned_jobs_with_details: pd.DataFrame) -> pd.DataFrame:
         """Enrich job data by processing job descriptions with OpenAIHandler."""
         try:
-            enriched_jobs = self.description_processor.process_job_descriptions(jobs_with_details)
+            enriched_jobs = self.description_processor.process_job_descriptions(cleaned_jobs_with_details)
             return enriched_jobs
         except Exception as e:
             self.logger.log.exception(f"Failed to enrich job descriptions: {e}")
