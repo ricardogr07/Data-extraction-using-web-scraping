@@ -16,8 +16,9 @@ class LinkedInJobScraper:
         self.job_scraper = JobScraper(config=self.config, logger=self.logger)
         self.job_data_cleaner = JobDataCleaner(self.logger)
         self.job_title_classifier = JobTitleClassifier(self.logger)
-        openai_handler = OpenAIHandler(self.logger)
-        self.description_processor = JobDescriptionProcessor(openai_handler, self.logger)
+        if self.config.openai_enabled:
+            openai_handler = OpenAIHandler(self.logger)
+            self.description_processor = JobDescriptionProcessor(openai_handler, self.logger)
 
     def run(self) -> pd.DataFrame:
         """Main function to run the LinkedIn job scraping process."""
@@ -35,12 +36,16 @@ class LinkedInJobScraper:
             if classified_jobs.empty:
                 self.logger.log.warning(f"No jobs remain after title classification.")
                 return pd.DataFrame()
-
+            
             jobs_with_details = self.fetch_job_details(classified_jobs)
-            enriched_jobs = self.enrich_jobs_with_descriptions(jobs_with_details)
-            final_jobs = self.final_processing(enriched_jobs)
 
-            return final_jobs
+            if self.config.openai_enabled:      
+                enriched_jobs = self.enrich_jobs_with_descriptions(jobs_with_details)
+                final_jobs = self.final_processing(enriched_jobs)
+                return final_jobs
+            else:
+                self.logger.log.info(f'The OpenAI Enabled feature is  {self.config.openai_enabled}. Returning jobs with details only. ')
+                return jobs_with_details
 
         except Exception as e:
             self.logger.log.exception(f"An error occurred during the scraping process: {e}")
