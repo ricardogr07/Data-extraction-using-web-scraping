@@ -4,7 +4,7 @@ from Utils.logger import Logger
 from Utils.file_manager import FileManager
 import pandas as pd
 
-def run_ds_daily_scraper(logger: Logger, position:str = 'Data Scientist', location:str = 'Monterrey', time_posted:str = 'DAY'):
+def run_ds_daily_scraper(logger: Logger, position:str = 'Data Scientist', location:str = 'Monterrey', time_posted:str = 'DAY', file_name:str = None):
     try:
         logger.log.info(f'Starting web scraping for {position} in {location}.')
 
@@ -28,8 +28,11 @@ def run_ds_daily_scraper(logger: Logger, position:str = 'Data Scientist', locati
 
         # Save to CSV
         file_manager_config = JobScraperConfig(position, location, remote='ALL')
-        file_manager = FileManager(logger, file_manager_config)   
-        file_manager.save_jobs_to_csv(df=df_jobs_all)
+        file_manager = FileManager(logger, file_manager_config)
+        if file_name != None:
+            file_manager.save_jobs_to_csv(df=df_jobs_all, file_name=file_name,append=True)
+        else:
+            file_manager.save_jobs_to_csv(df=df_jobs_all)
 
     except Exception as e:
         print(f"An error occurred: {e}")
