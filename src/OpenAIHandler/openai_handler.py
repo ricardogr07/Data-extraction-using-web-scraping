@@ -43,7 +43,7 @@ class OpenAIHandler:
             raise EnvironmentError("API Key is missing in .env file.")        
         
         self.client = OpenAI(
-            api_key=os.environ.get("OPENAI_API_KEY"),
+            api_key=OPENAI_API_KEY,
         )
 
     def create_messages(self, description: str) -> list:
