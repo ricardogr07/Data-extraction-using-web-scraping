@@ -1,5 +1,5 @@
-from src.process_ds_jobs import run_ds_daily_scraper
-from Utils.logger import Logger
+from process_ds_jobs import run_ds_daily_scraper
+from LinkedInWebScraper import Logger
 import pandas as pd
 import time
 
