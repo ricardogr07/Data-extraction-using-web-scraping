@@ -1,16 +1,19 @@
-from LinkedInWebScraper import LinkedInJobScraper, JobScraperConfig, Logger, FileManager
-from LinkedInWebScraper.job_scraper_config_factory import JobScraperConfigFactory
+from LinkedInWebScraper import LinkedInJobScraper, JobScraperConfig, Logger, FileManager, JobScraperConfigFactory, JobScraperAdvancedConfig
+from Utils.constants import LOCATION_MAPPING, DATA_SCIENCE_KEYWORDS, TECH_STACK_CATEGORIES
 import pandas as pd
 
 def run_ds_daily_scraper(logger: Logger, openai_enabled: bool = True, position:str = 'Data Scientist', location:str = 'Monterrey', time_posted:str = 'DAY', file_name:str = None):
     try:
         logger.log.info(f'Starting web scraping for {position} in {location}.')
 
+        advanced_config = JobScraperAdvancedConfig(LOCATION_MAPPING,DATA_SCIENCE_KEYWORDS,TECH_STACK_CATEGORIES)
+
         remote_types = ['REMOTE', 'HYBRID', 'ON-SITE']
         scraper_results = {}
 
         for remote in remote_types:
             config = JobScraperConfigFactory.create(position, location, openai_enabled, time_posted, remote)
+            config.advanced_config = advanced_config
             scraper = LinkedInJobScraper(logger=logger, config=config)
             scraper_results[f"scraper_{remote.lower()}"] = scraper.run()
 
